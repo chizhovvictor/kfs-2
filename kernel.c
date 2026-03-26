@@ -11,6 +11,9 @@
 #define VGA_COLOR_BLACK 0
 #define VGA_COLOR_WHITE 15
 
+/* Global text cursor for printk-like output */
+static int g_cursor_pos = 0;
+
 /* Create VGA entry with character and color */
 static inline unsigned short vga_entry(unsigned char ch, unsigned char color) {
     return (unsigned short) ch | (unsigned short) color << 8;
@@ -19,6 +22,54 @@ static inline unsigned short vga_entry(unsigned char ch, unsigned char color) {
 /* Create color byte from foreground and background */
 static inline unsigned char vga_color(unsigned char fg, unsigned char bg) {
     return fg | bg << 4;
+}
+
+/* Write a single character and keep cursor state */
+static void put_char(char ch, unsigned char color) {
+    unsigned short *vga_buffer = (unsigned short *) VGA_MEMORY;
+
+    if (ch == '\n') {
+        g_cursor_pos = (g_cursor_pos / VGA_WIDTH + 1) * VGA_WIDTH;
+    } else {
+        vga_buffer[g_cursor_pos++] = vga_entry((unsigned char) ch, color);
+    }
+
+    if (g_cursor_pos >= VGA_WIDTH * VGA_HEIGHT) {
+        g_cursor_pos = 0;
+    }
+}
+
+/* Print a 32-bit value as hexadecimal */
+static void print_hex32(uint32_t value) {
+    static const char hex[] = "0123456789ABCDEF";
+    unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+
+    put_char('0', color);
+    put_char('x', color);
+    for (int shift = 28; shift >= 0; shift -= 4) {
+        put_char(hex[(value >> shift) & 0xF], color);
+    }
+}
+
+/* Print an unsigned integer in decimal */
+static void print_u32(uint32_t value) {
+    unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    char buffer[10];
+    int index = 0;
+
+    if (value == 0) {
+        put_char('0', color);
+        return;
+    }
+
+    while (value > 0 && index < 10) {
+        buffer[index++] = (char) ('0' + (value % 10));
+        value /= 10;
+    }
+
+    while (index > 0) {
+        put_char(buffer[--index], color);
+    }
 }
 
 /* Basic string length helper for freestanding kernel */
@@ -39,6 +90,8 @@ void clear_screen(void) {
     for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
         vga_buffer[i] = vga_entry(' ', color);
     }
+
+    g_cursor_pos = 0;
 }
 
 /* Print a string at specific position */
@@ -53,21 +106,35 @@ void print_at(const char *str, int x, int y, unsigned char color) {
 
 /* Print a string at current position */
 void print(const char *str) {
-    unsigned short *vga_buffer = (unsigned short *) VGA_MEMORY;
     unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    
-    static int pos = 0;
-    
+
     for (int i = 0; str[i] != '\0'; i++) {
-        if (str[i] == '\n') {
-            pos = (pos / VGA_WIDTH + 1) * VGA_WIDTH;
-        } else {
-            vga_buffer[pos++] = vga_entry(str[i], color);
-        }
-        
-        if (pos >= VGA_WIDTH * VGA_HEIGHT) {
-            pos = 0;
-        }
+        put_char(str[i], color);
+    }
+}
+
+/* Print current kernel stack in a readable tabular form */
+void dump_kernel_stack(uint32_t words) {
+    uint32_t *esp_ptr;
+    uint32_t *ebp_ptr;
+
+    __asm__ __volatile__("mov %%esp, %0" : "=r" (esp_ptr));
+    __asm__ __volatile__("mov %%ebp, %0" : "=r" (ebp_ptr));
+
+    print("\n=== KERNEL STACK DUMP ===\n");
+    print("ESP=");
+    print_hex32((uint32_t) esp_ptr);
+    print(" EBP=");
+    print_hex32((uint32_t) ebp_ptr);
+    print("\nIdx Addr         Value\n");
+
+    for (uint32_t i = 0; i < words; i++) {
+        print_u32(i);
+        print("   ");
+        print_hex32((uint32_t) (esp_ptr + i));
+        print("   ");
+        print_hex32(esp_ptr[i]);
+        print("\n");
     }
 }
 
@@ -79,6 +146,8 @@ void kernel_main() {
     /* Display "42" on the screen */
     unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
     print_at("42", 0, 0, color);
+    print("KFS GDT ready\n");
+    dump_kernel_stack(12);
     
     /* Hang forever */
     while (1) {
