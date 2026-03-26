@@ -1,4 +1,4 @@
-# KFS-1 - Kernel From Scratch
+# KFS-2 - Kernel From Scratch
 
 A simple x86 kernel that boots with GRUB and displays "42" on the screen.
 
@@ -32,7 +32,7 @@ sudo apt-get install nasm gcc grub-common xorriso qemu-system-x86
 ## Project Structure
 
 ```
-kfs-1/
+kfs-2/
 ├── boot.asm        # Assembly bootloader with multiboot header
 ├── kernel.c        # Main kernel code in C
 ├── kernel.h        # Kernel header file
@@ -65,7 +65,7 @@ make run
 
 ### With other virtual machines
 
-Use the generated `kfs-1.iso` file with:
+Use the generated `kfs-2.iso` file with:
 - VirtualBox
 - VMware
 - Real hardware (burn to CD/USB)

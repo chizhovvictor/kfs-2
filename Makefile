@@ -1,4 +1,4 @@
-# Makefile for KFS-1 kernel
+# Makefile for KFS-2 kernel
 
 # Compiler and tools
 ASM = nasm
@@ -12,7 +12,7 @@ GRUB_DIR = $(ISO_DIR)/boot/grub
 
 # Output files
 KERNEL = $(BUILD_DIR)/kernel.bin
-ISO = kfs-1.iso
+ISO = kfs-2.iso
 
 # Source files
 ASM_SRC = boot.asm
@@ -55,7 +55,7 @@ $(KERNEL): $(OBJS) $(LINKER_SCRIPT)
 
 # Create GRUB config
 $(GRUB_DIR)/grub.cfg: | $(GRUB_DIR)
-	@echo "menuentry \"KFS-1\" {" > $(GRUB_DIR)/grub.cfg
+	@echo "menuentry \"KFS-2\" {" > $(GRUB_DIR)/grub.cfg
 	@echo "    multiboot /boot/kernel.bin" >> $(GRUB_DIR)/grub.cfg
 	@echo "}" >> $(GRUB_DIR)/grub.cfg
 
