@@ -1,6 +1,6 @@
 # KFS-2 - 42 Defense README
 
-Minimal x86 kernel booted by GRUB. This step includes a custom Global Descriptor Table (GDT) at address 0x00000800 and a human-friendly kernel stack dump tool.
+Minimal x86 kernel booted by GRUB. This step includes a custom Global Descriptor Table (GDT) at address 0x00000800 and human-friendly debug output through printk.
 
 ## Subject Checklist
 
@@ -85,6 +85,17 @@ The stack dump tool prints:
 - Table with index, memory address, and 32-bit value for N words from current ESP
 
 This is used as a printk-like debug aid for defense: you can show concrete stack content live during boot.
+
+## Memory Map Output
+
+Memory regions from Multiboot are printed in compact rows suitable for VGA 80x25:
+
+- index
+- base low 32 bits
+- length low 32 bits
+- type (usable, reserved, acpi, nvs, bad)
+
+If a region has non-zero high 32-bit words, an extra line is printed with those high values.
 
 ## Memory Notes
 
