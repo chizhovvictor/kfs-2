@@ -61,6 +61,10 @@ gdt_descriptor:
     dd GDT_PHYS_ADDR
 
 _start:
+    ; Save Multiboot registers before using general-purpose registers
+    mov ebp, eax
+    mov edx, ebx
+
     ; Copy required GDT to physical address 0x800
     cld
     mov esi, gdt_template
@@ -85,8 +89,11 @@ _start:
     ; Set up the kernel stack with the new stack segment
     mov esp, stack_top
 
-    ; Call the kernel main function
+    ; Call kernel_main(multiboot_magic, multiboot_info_ptr)
+    push edx
+    push ebp
     call kernel_main
+    add esp, 8
 
     ; Hang if kernel_main returns
     cli
