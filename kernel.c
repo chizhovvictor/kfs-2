@@ -57,27 +57,6 @@ static void print_hex32(uint32_t value) {
     }
 }
 
-/* Print an unsigned integer in decimal */
-static void print_u32(uint32_t value) {
-    unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    char buffer[10];
-    int index = 0;
-
-    if (value == 0) {
-        put_char('0', color);
-        return;
-    }
-
-    while (value > 0 && index < 10) {
-        buffer[index++] = (char) ('0' + (value % 10));
-        value /= 10;
-    }
-
-    while (index > 0) {
-        put_char(buffer[--index], color);
-    }
-}
-
 /* Basic string length helper for freestanding kernel */
 uint32_t strlen(const char *str) {
     uint32_t len = 0;
@@ -119,30 +98,6 @@ void print(const char *str) {
     }
 }
 
-/* Print current kernel stack in a readable tabular form */
-void dump_kernel_stack(uint32_t words) {
-    uint32_t *esp_ptr;
-    uint32_t *ebp_ptr;
-
-    __asm__ __volatile__("mov %%esp, %0" : "=r" (esp_ptr));
-    __asm__ __volatile__("mov %%ebp, %0" : "=r" (ebp_ptr));
-
-    print("\n=== KERNEL STACK DUMP ===\n");
-    print("ESP=");
-    print_hex32((uint32_t) esp_ptr);
-    print(" EBP=");
-    print_hex32((uint32_t) ebp_ptr);
-    print("\nIdx Addr         Value\n");
-
-    for (uint32_t i = 0; i < words; i++) {
-        print_u32(i);
-        print("   ");
-        print_hex32((uint32_t) (esp_ptr + i));
-        print("   ");
-        print_hex32(esp_ptr[i]);
-        print("\n");
-    }
-}
 
 /* Print current GDTR values to verify GDT base address */
 static void dump_gdt_info(void) {
@@ -164,14 +119,12 @@ void kernel_main() {
     
     /* Display "42" on the screen */
     unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    print_at("42", 0, 0, color);
 
     /* Keep the first line for "42" and continue logs from line 2 */
     g_cursor_pos = VGA_WIDTH;
 
     print("KFS GDT ready\n");
     dump_gdt_info();
-    dump_kernel_stack(12);
     
     /* Hang forever */
     while (1) {
