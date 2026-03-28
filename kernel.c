@@ -118,7 +118,6 @@ void kernel_main() {
     clear_screen();
 
     /* Keep the first line for "42" and continue logs from line 2 */
-    g_cursor_pos = VGA_WIDTH;
 
     print("KFS GDT ready\n");
     dump_gdt_info();
