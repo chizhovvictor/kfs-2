@@ -14,6 +14,12 @@
 /* Global text cursor for printk-like output */
 static int g_cursor_pos = 0;
 
+/* GDTR layout in 32-bit protected mode */
+struct gdtr32 {
+    uint16_t limit;
+    uint32_t base;
+} __attribute__((packed));
+
 /* Create VGA entry with character and color */
 static inline unsigned short vga_entry(unsigned char ch, unsigned char color) {
     return (unsigned short) ch | (unsigned short) color << 8;
@@ -138,6 +144,19 @@ void dump_kernel_stack(uint32_t words) {
     }
 }
 
+/* Print current GDTR values to verify GDT base address */
+static void dump_gdt_info(void) {
+    struct gdtr32 gdtr;
+
+    __asm__ __volatile__("sgdt %0" : "=m" (gdtr));
+
+    print("GDTR.base=");
+    print_hex32(gdtr.base);
+    print(" GDTR.limit=");
+    print_hex32((uint32_t) gdtr.limit);
+    print("\n");
+}
+
 /* Kernel main function */
 void kernel_main() {
     /* Clear the screen */
@@ -146,7 +165,12 @@ void kernel_main() {
     /* Display "42" on the screen */
     unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
     print_at("42", 0, 0, color);
+
+    /* Keep the first line for "42" and continue logs from line 2 */
+    g_cursor_pos = VGA_WIDTH;
+
     print("KFS GDT ready\n");
+    dump_gdt_info();
     dump_kernel_stack(12);
     
     /* Hang forever */
