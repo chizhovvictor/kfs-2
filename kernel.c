@@ -76,49 +76,49 @@ static void put_char(char ch, unsigned char color) {
 }
 
 /* Print a 32-bit value as hexadecimal */
-static void print_hex32(uint32_t value) {
-    static const char hex[] = "0123456789ABCDEF";
-    unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+// static void print_hex32(uint32_t value) {
+//     static const char hex[] = "0123456789ABCDEF";
+//     unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 
-    put_char('0', color);
-    put_char('x', color);
-    for (int shift = 28; shift >= 0; shift -= 4) {
-        put_char(hex[(value >> shift) & 0xF], color);
-    }
-}
+//     put_char('0', color);
+//     put_char('x', color);
+//     for (int shift = 28; shift >= 0; shift -= 4) {
+//         put_char(hex[(value >> shift) & 0xF], color);
+//     }
+// }
 
-static void print_u32(uint32_t value);
+// static void print_u32(uint32_t value);
 
 /* Print signed 32-bit integer in decimal */
-static void print_i32(int32_t value) {
-    if (value < 0) {
-        put_char('-', vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
-        print_u32((uint32_t) (-value));
-        return;
-    }
-    print_u32((uint32_t) value);
-}
+// static void print_i32(int32_t value) {
+//     if (value < 0) {
+//         put_char('-', vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
+//         print_u32((uint32_t) (-value));
+//         return;
+//     }
+//     print_u32((uint32_t) value);
+// }
 
 /* Print 32-bit unsigned integer in decimal */
-static void print_u32(uint32_t value) {
-    unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    char buffer[10];
-    int index = 0;
+// static void print_u32(uint32_t value) {
+//     unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+//     char buffer[10];
+//     int index = 0;
 
-    if (value == 0) {
-        put_char('0', color);
-        return;
-    }
+//     if (value == 0) {
+//         put_char('0', color);
+//         return;
+//     }
 
-    while (value > 0 && index < 10) {
-        buffer[index++] = (char) ('0' + (value % 10));
-        value /= 10;
-    }
+//     while (value > 0 && index < 10) {
+//         buffer[index++] = (char) ('0' + (value % 10));
+//         value /= 10;
+//     }
 
-    while (index > 0) {
-        put_char(buffer[--index], color);
-    }
-}
+//     while (index > 0) {
+//         put_char(buffer[--index], color);
+//     }
+// }
 
 /* Minimal kernel printf for early debugging */
 // void printk(const char *fmt, ...) {
@@ -202,23 +202,23 @@ void clear_screen(void) {
 }
 
 /* Print a string at specific position */
-void print_at(const char *str, int x, int y, unsigned char color) {
-    unsigned short *vga_buffer = (unsigned short *) VGA_MEMORY;
-    int pos = y * VGA_WIDTH + x;
+// void print_at(const char *str, int x, int y, unsigned char color) {
+//     unsigned short *vga_buffer = (unsigned short *) VGA_MEMORY;
+//     int pos = y * VGA_WIDTH + x;
     
-    for (int i = 0; str[i] != '\0'; i++) {
-        vga_buffer[pos + i] = vga_entry(str[i], color);
-    }
-}
+//     for (int i = 0; str[i] != '\0'; i++) {
+//         vga_buffer[pos + i] = vga_entry(str[i], color);
+//     }
+// }
 
 /* Print a string at current position */
-void print(const char *str) {
-    unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+// void print(const char *str) {
+//     unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 
-    for (int i = 0; str[i] != '\0'; i++) {
-        put_char(str[i], color);
-    }
-}
+//     for (int i = 0; str[i] != '\0'; i++) {
+//         put_char(str[i], color);
+//     }
+// }
 
 /* Print current kernel stack in a compact, human-friendly table */
 void dump_kernel_stack(uint32_t words) {
