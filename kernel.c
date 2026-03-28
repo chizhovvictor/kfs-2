@@ -116,9 +116,6 @@ static void dump_gdt_info(void) {
 void kernel_main() {
     /* Clear the screen */
     clear_screen();
-    
-    /* Display "42" on the screen */
-    unsigned char color = vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 
     /* Keep the first line for "42" and continue logs from line 2 */
     g_cursor_pos = VGA_WIDTH;
