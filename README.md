@@ -134,4 +134,33 @@ GDT лежит по адресу 0x800
 - User code
 - User data
 - User stack
-- + null descriptor
+- null descriptor
+
+## STACK dump
+
+- ESP — текущая вершина стека
+- EBP — base pointer (используется для stack frames)
+
+### Первая строка стека
+0  0x00106F98  0x2BADB002
+
+0x2BADB002 — это Multiboot magic number
+
+### Вторая строка
+
+1  0x00106F9C  0x001023F4
+
+стек содержит сохранённые регистры/фреймы
+
+### Остальные значения
+
+2  0x00106FA0  0x00010000
+3  0x00106FA4  0x00000F20
+...
+
+Это могут быть:
+
+- return address
+- локальные переменные
+- аргументы функций
+- адреса из bootloader / kernel
