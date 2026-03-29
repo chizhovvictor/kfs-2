@@ -119,15 +119,19 @@ If evaluator asks about BIOS wording: technically CPU uses GDTR and segment sele
 
 ## Первая строка — статус ядра и GDT
 KFS GDT ready
+
 GDTR.base=0x00000800 GDTR.limit=0x00000037
+
 GDT лежит по адресу 0x800 
+
 размер GDT 0x37 = 55 байт минус 1 → значит GDT ≈ 56 байт
+
 56 / 8 = 7 дескрипторов
 
-Kernel code
-Kernel data
-Kernel stack
-User code
-User data
-User stack
-+ null descriptor
+- Kernel code
+- Kernel data
+- Kernel stack
+- User code
+- User data
+- User stack
+- + null descriptor
